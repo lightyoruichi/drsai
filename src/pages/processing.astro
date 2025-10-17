@@ -1,0 +1,263 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Processing - DRS AI">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="bg-white rounded-2xl shadow-xl p-12 border border-gray-200 text-center">
+      <!-- Processing Animation -->
+      <div class="mb-8">
+        <div class="relative inline-flex">
+          <div class="absolute inset-0 animate-ping bg-blue-400 rounded-full opacity-75"></div>
+          <div class="relative">
+            <svg class="animate-spin h-24 w-24 text-blue-600" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+        Analyzing Your Dental Scan
+      </h1>
+      <p class="text-lg text-gray-600 mb-8" id="statusMessage">
+        Our AI is carefully examining your scan. This may take up to 30 seconds...
+      </p>
+
+      <!-- Progress Steps -->
+      <div class="max-w-2xl mx-auto mb-12">
+        <div class="space-y-4">
+          <div id="step1" class="flex items-center space-x-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div class="flex-shrink-0">
+              <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <div class="flex-1 text-left">
+              <p class="text-sm font-medium text-green-900">File Uploaded Successfully</p>
+            </div>
+          </div>
+
+          <div id="step2" class="flex items-center space-x-4 p-4 bg-blue-50 border border-blue-200 rounded-lg animate-pulse">
+            <div class="flex-shrink-0">
+              <svg class="animate-spin h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </div>
+            <div class="flex-1 text-left">
+              <p class="text-sm font-medium text-blue-900">Sending to AI Model...</p>
+            </div>
+          </div>
+
+          <div id="step3" class="flex items-center space-x-4 p-4 bg-gray-50 border border-gray-200 rounded-lg opacity-50">
+            <div class="flex-shrink-0">
+              <div class="h-6 w-6 border-2 border-gray-300 rounded-full"></div>
+            </div>
+            <div class="flex-1 text-left">
+              <p class="text-sm font-medium text-gray-500">Analyzing Dental Features</p>
+            </div>
+          </div>
+
+          <div id="step4" class="flex items-center space-x-4 p-4 bg-gray-50 border border-gray-200 rounded-lg opacity-50">
+            <div class="flex-shrink-0">
+              <div class="h-6 w-6 border-2 border-gray-300 rounded-full"></div>
+            </div>
+            <div class="flex-1 text-left">
+              <p class="text-sm font-medium text-gray-500">Generating Diagnosis Report</p>
+            </div>
+          </div>
+
+          <div id="step5" class="flex items-center space-x-4 p-4 bg-gray-50 border border-gray-200 rounded-lg opacity-50">
+            <div class="flex-shrink-0">
+              <div class="h-6 w-6 border-2 border-gray-300 rounded-full"></div>
+            </div>
+            <div class="flex-1 text-left">
+              <p class="text-sm font-medium text-gray-500">Creating Shareable Link</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- File Info -->
+      <div id="fileInfo" class="bg-gray-50 rounded-lg p-6 text-left max-w-md mx-auto">
+        <h3 class="text-sm font-semibold text-gray-700 mb-2">Upload Details</h3>
+        <p class="text-sm text-gray-600 mb-1">
+          <span class="font-medium">File:</span> <span id="fileName"></span>
+        </p>
+        <p class="text-sm text-gray-600">
+          <span class="font-medium">Your Diagnosis:</span> <span id="fileDescription"></span>
+        </p>
+      </div>
+
+      <!-- Error Message -->
+      <div id="errorMessage" class="hidden mt-6 bg-red-50 border border-red-200 rounded-lg p-4 text-left max-w-md mx-auto">
+        <div class="flex items-start space-x-3">
+          <svg class="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div>
+            <p class="text-sm font-medium text-red-800 mb-1">Analysis Failed</p>
+            <p class="text-xs text-red-700" id="errorText"></p>
+            <a href="/" class="text-sm text-red-600 hover:text-red-800 underline mt-2 inline-block">Go back and try again</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Display uploaded file info
+    const formDataStr = sessionStorage.getItem('formData');
+    
+    if (formDataStr) {
+      const formData = JSON.parse(formDataStr);
+      const fileNameElement = document.getElementById('fileName');
+      const fileDescriptionElement = document.getElementById('fileDescription');
+      
+      if (fileNameElement) fileNameElement.textContent = formData.fileName;
+      if (fileDescriptionElement) fileDescriptionElement.textContent = formData.initialDiagnosis;
+    }
+
+    // Helper function to update step UI
+    function updateStep(stepId: string, status: 'pending' | 'loading' | 'complete') {
+      const step = document.getElementById(stepId);
+      if (!step) return;
+
+      const iconContainer = step.querySelector('.flex-shrink-0');
+      const text = step.querySelector('p');
+
+      if (status === 'complete') {
+        step.classList.remove('bg-blue-50', 'border-blue-200', 'animate-pulse', 'opacity-50', 'bg-gray-50', 'border-gray-200');
+        step.classList.add('bg-green-50', 'border-green-200');
+        
+        if (iconContainer) {
+          iconContainer.innerHTML = `<svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>`;
+        }
+        
+        if (text) {
+          text.classList.remove('text-blue-900', 'text-gray-500');
+          text.classList.add('text-green-900');
+        }
+      } else if (status === 'loading') {
+        step.classList.remove('opacity-50', 'bg-gray-50', 'border-gray-200');
+        step.classList.add('bg-blue-50', 'border-blue-200', 'animate-pulse');
+        
+        if (iconContainer) {
+          iconContainer.innerHTML = `<svg class="animate-spin h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>`;
+        }
+        
+        if (text) {
+          text.classList.remove('text-gray-500');
+          text.classList.add('text-blue-900');
+        }
+      }
+    }
+
+    // Process the analysis
+    async function processAnalysis() {
+      try {
+        const fileName = sessionStorage.getItem('uploadedFile');
+        const fileType = sessionStorage.getItem('uploadedFileType');
+        const fileData = sessionStorage.getItem('uploadedFileData');
+        const initialDiagnosis = sessionStorage.getItem('initialDiagnosis');
+        const needsReupload = sessionStorage.getItem('needsReupload');
+
+        if (!fileName || !initialDiagnosis) {
+          throw new Error('Missing upload data. Please go back and upload again.');
+        }
+
+        if (needsReupload === 'true' || !fileData) {
+          throw new Error('File too large. Please use a smaller image (under 5MB recommended).');
+        }
+
+        // Update step 2
+        updateStep('step2', 'complete');
+        updateStep('step3', 'loading');
+
+        console.log('Converting base64 to blob...');
+        // Convert base64 to blob with correct MIME type
+        const response = await fetch(fileData);
+        const blobData = await response.blob();
+        const blob = new Blob([blobData], { type: fileType || 'image/jpeg' });
+        
+        console.log('Creating form data...');
+        // Create form data
+        const formData = new FormData();
+        formData.append('file', blob, fileName);
+        formData.append('initialDiagnosis', initialDiagnosis);
+        
+        console.log('Calling API...');
+
+        // Call API
+        const apiResponse = await fetch('/api/analyze', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!apiResponse.ok) {
+          const errorData = await apiResponse.json();
+          throw new Error(errorData.error || 'Analysis failed');
+        }
+
+        const result = await apiResponse.json();
+
+        // Update step 3
+        updateStep('step3', 'complete');
+        updateStep('step4', 'loading');
+
+        // Simulate report generation
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        updateStep('step4', 'complete');
+        updateStep('step5', 'loading');
+
+        // Store result
+        sessionStorage.setItem('analysisResult', JSON.stringify(result));
+
+        // Simulate link creation
+        await new Promise(resolve => setTimeout(resolve, 500));
+        updateStep('step5', 'complete');
+
+        // Redirect to results
+        setTimeout(() => {
+          window.location.href = `/results/${result.id}`;
+        }, 1000);
+
+      } catch (error) {
+        console.error('Processing error:', error);
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+        const statusMessage = document.getElementById('statusMessage');
+        
+        if (errorMessage) errorMessage.classList.remove('hidden');
+        if (errorText) errorText.textContent = error instanceof Error ? error.message : 'Unknown error occurred';
+        if (statusMessage) statusMessage.textContent = 'Analysis failed. Please try again.';
+
+        // Update step 2 or 3 to show error
+        const step2 = document.getElementById('step2');
+        const step3 = document.getElementById('step3');
+        const failedStep = step3?.classList.contains('animate-pulse') ? step3 : step2;
+        
+        if (failedStep) {
+          failedStep.classList.remove('bg-blue-50', 'border-blue-200', 'animate-pulse');
+          failedStep.classList.add('bg-red-50', 'border-red-200');
+          const iconContainer = failedStep.querySelector('.flex-shrink-0');
+          if (iconContainer) {
+            iconContainer.innerHTML = `<svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>`;
+          }
+        }
+      }
+    }
+
+    // Start processing on page load
+    processAnalysis();
+  </script>
+</Layout>

@@ -1,0 +1,182 @@
+---
+import type { ToothDiagnosis } from '../types/dental';
+
+interface Props {
+  teeth: ToothDiagnosis[];
+}
+
+const { teeth } = Astro.props;
+
+// Create a map for quick lookup
+const teethMap = new Map(teeth.map(t => [t.toothNumber, t]));
+
+// Universal Numbering System layout
+// Upper: 1-16 (right to left from patient's perspective)
+// Lower: 17-32 (left to right from patient's perspective)
+const upperTeeth = Array.from({ length: 16 }, (_, i) => i + 1);
+const lowerTeeth = Array.from({ length: 16 }, (_, i) => i + 17);
+
+function getSeverityColor(severity: string): string {
+  switch (severity) {
+    case 'severe': return 'bg-red-500 border-red-600';
+    case 'moderate': return 'bg-orange-400 border-orange-500';
+    case 'mild': return 'bg-yellow-400 border-yellow-500';
+    case 'none': return 'bg-green-400 border-green-500';
+    default: return 'bg-gray-200 border-gray-300';
+  }
+}
+---
+
+<div class="teeth-chart-container bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+  <div class="max-w-full mx-auto">
+    <h3 class="text-xl font-semibold text-gray-900 mb-6 text-center">
+      🦷 Dental Chart (Universal Numbering System)
+    </h3>
+    
+    <!-- Upper Teeth -->
+    <div class="mb-4">
+      <p class="text-sm text-gray-600 mb-3 text-center font-medium">Upper Jaw (Right → Left)</p>
+      <div class="overflow-x-auto">
+        <div class="flex flex-nowrap justify-center gap-1 sm:gap-2 min-w-max px-2">
+          {upperTeeth.map(toothNum => {
+            const tooth = teethMap.get(toothNum);
+            const severityColor = tooth ? getSeverityColor(tooth.severity) : 'bg-gray-200 border-gray-300';
+            return (
+              <div class="tooth-container group relative">
+                <div class={`tooth w-10 h-14 sm:w-12 sm:h-16 md:w-14 md:h-20 rounded-lg border-2 ${severityColor} flex items-center justify-center cursor-help transition-all hover:scale-110 hover:shadow-lg flex-shrink-0`}>
+                  <span class="text-xs sm:text-sm font-bold text-white drop-shadow-md">{toothNum}</span>
+                </div>
+                {tooth && (
+                  <div class="tooltip opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 absolute z-20 bottom-full mb-3 left-1/2 -translate-x-1/2 w-56 bg-gray-900 text-white text-xs rounded-lg p-3 shadow-xl">
+                    <div class="font-bold text-sm mb-2 text-blue-300">Tooth #{toothNum}</div>
+                    <div class="space-y-1">
+                      <div><span class="text-gray-400">Condition:</span> <span class="font-medium">{tooth.condition}</span></div>
+                      <div><span class="text-gray-400">Severity:</span> <span class="font-medium capitalize">{tooth.severity}</span></div>
+                      {tooth.notes && <div class="text-gray-300 text-xs mt-2 pt-2 border-t border-gray-700">{tooth.notes}</div>}
+                    </div>
+                    <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+
+    <!-- Jaw Separator -->
+    <div class="my-6 relative">
+      <div class="border-t-2 border-dashed border-gray-300"></div>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-3 text-xs text-gray-500">
+        Bite Line
+      </div>
+    </div>
+
+    <!-- Lower Teeth -->
+    <div class="mb-4">
+      <div class="overflow-x-auto">
+        <div class="flex flex-nowrap justify-center gap-1 sm:gap-2 min-w-max px-2">
+          {lowerTeeth.map(toothNum => {
+            const tooth = teethMap.get(toothNum);
+            const severityColor = tooth ? getSeverityColor(tooth.severity) : 'bg-gray-200 border-gray-300';
+            return (
+              <div class="tooth-container group relative">
+                <div class={`tooth w-10 h-14 sm:w-12 sm:h-16 md:w-14 md:h-20 rounded-lg border-2 ${severityColor} flex items-center justify-center cursor-help transition-all hover:scale-110 hover:shadow-lg flex-shrink-0`}>
+                  <span class="text-xs sm:text-sm font-bold text-white drop-shadow-md">{toothNum}</span>
+                </div>
+                {tooth && (
+                  <div class="tooltip opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 absolute z-20 top-full mt-3 left-1/2 -translate-x-1/2 w-56 bg-gray-900 text-white text-xs rounded-lg p-3 shadow-xl">
+                    <div class="font-bold text-sm mb-2 text-blue-300">Tooth #{toothNum}</div>
+                    <div class="space-y-1">
+                      <div><span class="text-gray-400">Condition:</span> <span class="font-medium">{tooth.condition}</span></div>
+                      <div><span class="text-gray-400">Severity:</span> <span class="font-medium capitalize">{tooth.severity}</span></div>
+                      {tooth.notes && <div class="text-gray-300 text-xs mt-2 pt-2 border-t border-gray-700">{tooth.notes}</div>}
+                    </div>
+                    <div class="absolute bottom-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-900"></div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      <p class="text-sm text-gray-600 mt-3 text-center font-medium">Lower Jaw (Left → Right)</p>
+    </div>
+
+    <!-- Legend -->
+    <div class="mt-8 pt-6 border-t border-gray-200">
+      <div class="flex justify-center flex-wrap gap-4 text-sm">
+        <div class="flex items-center space-x-2">
+          <div class="w-6 h-6 bg-green-400 border-2 border-green-500 rounded shadow-sm"></div>
+          <span class="font-medium text-gray-700">Healthy</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <div class="w-6 h-6 bg-yellow-400 border-2 border-yellow-500 rounded shadow-sm"></div>
+          <span class="font-medium text-gray-700">Mild</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <div class="w-6 h-6 bg-orange-400 border-2 border-orange-500 rounded shadow-sm"></div>
+          <span class="font-medium text-gray-700">Moderate</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <div class="w-6 h-6 bg-red-500 border-2 border-red-600 rounded shadow-sm"></div>
+          <span class="font-medium text-gray-700">Severe</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <div class="w-6 h-6 bg-gray-200 border-2 border-gray-300 rounded shadow-sm"></div>
+          <span class="font-medium text-gray-700">No Data</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Hover Instruction -->
+    <p class="text-xs text-gray-500 text-center mt-4">
+      💡 Hover over any tooth to see detailed information
+    </p>
+  </div>
+</div>
+
+<style>
+  .tooth {
+    position: relative;
+  }
+  
+  .tooltip {
+    animation: fadeIn 0.2s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(5px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  }
+  
+  /* Ensure horizontal scrolling is smooth */
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+  
+  .overflow-x-auto::-webkit-scrollbar {
+    height: 6px;
+  }
+  
+  .overflow-x-auto::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+  
+  .overflow-x-auto::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+  }
+  
+  .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+</style>

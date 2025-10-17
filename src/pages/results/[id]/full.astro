@@ -1,0 +1,502 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import TeethChart from '../../../components/TeethChart.astro';
+
+const { id } = Astro.params;
+
+// In production, you'd fetch from database
+// For now, we'll use client-side rendering for the teeth chart
+---
+
+<Layout title="Full Results - DRS AI">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Header with Back Button -->
+    <div class="mb-8">
+      <a
+        href={`/results/${id}`}
+        class="inline-flex items-center text-blue-600 hover:text-blue-700 mb-4"
+      >
+        <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back to Brief Results
+      </a>
+      <h1 class="text-4xl font-bold text-gray-900 mb-2">🦷 Full Dental Analysis Report</h1>
+      <p class="text-lg text-gray-600">Complete breakdown of all findings and tooth-by-tooth analysis</p>
+    </div>
+
+    <!-- Overall Assessment - Full Width -->
+    <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-200 mb-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6">Overall Assessment</h2>
+      
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="text-center p-4 bg-blue-50 rounded-lg">
+          <div id="confidenceDisplay" class="text-2xl font-bold text-blue-600">--%</div>
+          <p class="text-sm text-gray-600 mt-1">Confidence</p>
+        </div>
+        <div class="text-center p-4 bg-purple-50 rounded-lg">
+          <div id="findingsCount" class="text-2xl font-bold text-purple-600">0</div>
+          <p class="text-sm text-gray-600 mt-1">Findings</p>
+        </div>
+        <div class="text-center p-4 bg-green-50 rounded-lg">
+          <div id="healthyTeeth" class="text-2xl font-bold text-green-600">0</div>
+          <p class="text-sm text-gray-600 mt-1">Healthy Teeth</p>
+        </div>
+        <div class="text-center p-4 bg-orange-50 rounded-lg">
+          <div id="concernTeeth" class="text-2xl font-bold text-orange-600">0</div>
+          <p class="text-sm text-gray-600 mt-1">Need Attention</p>
+        </div>
+      </div>
+
+      <div class="border-t border-gray-200 pt-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-3">Summary</h3>
+        <p id="overallAssessmentText" class="text-gray-700 leading-relaxed"></p>
+      </div>
+    </div>
+
+    <!-- Teeth Chart - Full Width -->
+    <div class="mb-8">
+      <div id="teethChartContainer">
+        <!-- Will be populated by JavaScript -->
+        <p class="text-gray-500 text-center py-8">Loading teeth chart...</p>
+      </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Main Content -->
+      <div class="lg:col-span-2 space-y-8">
+        <!-- Dental Scan -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6">Your Dental Scan</h2>
+          <div class="bg-gray-100 rounded-lg p-4 flex items-center justify-center">
+            <img id="scanImage" src="" alt="Dental Scan" class="max-w-full max-h-96 rounded-lg shadow-lg" />
+          </div>
+        </div>
+
+        <!-- Detailed Findings -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6">Detailed Findings</h2>
+          
+          <div id="detailedFindings" class="space-y-6">
+            <!-- Will be filled by JavaScript -->
+          </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6">Recommendations</h2>
+          <div id="recommendationsContainer" class="space-y-3">
+            <!-- Will be filled by JavaScript -->
+          </div>
+        </div>
+
+        <!-- Technical Details -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
+          <h2 class="text-2xl font-bold text-gray-900 mb-6">Analysis Details</h2>
+          
+          <div class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <p class="text-sm text-gray-600 mb-1">Analysis ID</p>
+                <p class="text-sm font-mono text-gray-900">{id}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-600 mb-1">AI Model</p>
+                <p class="text-sm font-mono text-gray-900" id="modelName">Loading...</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-600 mb-1">Analysis Date</p>
+                <p class="text-sm font-mono text-gray-900" id="analysisDate"></p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-600 mb-1">File Name</p>
+                <p class="text-sm font-mono text-gray-900" id="fileName"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="lg:col-span-1 space-y-6">
+        <!-- Share Card -->
+        <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-6 border border-blue-200 sticky top-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Share Results</h3>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Brief Results Link</label>
+              <div class="flex items-center space-x-2">
+                <input
+                  type="text"
+                  id="briefLink"
+                  readonly
+                  value={`${Astro.url.origin}/results/${id}`}
+                  class="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-lg text-xs"
+                />
+                <button
+                  id="copyBriefLink"
+                  class="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs"
+                >
+                  Copy
+                </button>
+              </div>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Full Results Link</label>
+              <div class="flex items-center space-x-2">
+                <input
+                  type="text"
+                  id="fullLink"
+                  readonly
+                  value={`${Astro.url.origin}/results/${id}/full`}
+                  class="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-lg text-xs"
+                />
+                <button
+                  id="copyFullLink"
+                  class="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs"
+                >
+                  Copy
+                </button>
+              </div>
+            </div>
+
+            <div class="pt-4 border-t border-blue-200">
+              <p class="text-xs text-gray-600">
+                <svg class="inline h-4 w-4 text-blue-600 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                ⚠️ These links are temporary and only work in this browser session
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Stats</h3>
+          <div class="space-y-3">
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-600">Urgency</span>
+              <span id="urgencyBadge" class="text-sm font-bold px-2 py-1 rounded">-</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-600">Confidence</span>
+              <span id="confidenceStat" class="text-sm font-bold text-blue-600">--%</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-600">Total Teeth</span>
+              <span id="totalTeeth" class="text-sm font-bold text-gray-900">32</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-600">Issues Found</span>
+              <span id="issuesFound" class="text-sm font-bold text-orange-600">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Actions</h3>
+          <div class="space-y-3">
+            <a
+              href="/"
+              class="block w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all font-medium text-sm"
+            >
+              Analyze Another Scan
+            </a>
+            <button
+              id="downloadReport"
+              class="block w-full px-4 py-2 border border-gray-300 text-gray-700 text-center rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm"
+            >
+              Download PDF Report
+            </button>
+            <button
+              id="printReport"
+              class="block w-full px-4 py-2 border border-gray-300 text-gray-700 text-center rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm"
+            >
+              Print Report
+            </button>
+          </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <div class="flex items-start space-x-2">
+            <svg class="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <div>
+              <p class="text-xs font-medium text-yellow-800 mb-1">Important</p>
+              <p class="text-xs text-yellow-700">
+                Always consult with a licensed dental professional for diagnosis and treatment.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Load analysis result
+    const analysisResultStr = sessionStorage.getItem('analysisResult');
+    
+    if (analysisResultStr) {
+      const result = JSON.parse(analysisResultStr);
+      const diagnosis = result.diagnosis;
+
+      // Display scan image
+      const scanImage = document.getElementById('scanImage') as HTMLImageElement;
+      if (scanImage && result.fileData) {
+        scanImage.src = result.fileData;
+      }
+
+      // Display stats
+      const confidenceDisplay = document.getElementById('confidenceDisplay');
+      const confidenceStat = document.getElementById('confidenceStat');
+      if (confidenceDisplay) confidenceDisplay.textContent = `${Math.round(diagnosis.confidenceScore)}%`;
+      if (confidenceStat) confidenceStat.textContent = `${Math.round(diagnosis.confidenceScore)}%`;
+
+      const findingsCount = document.getElementById('findingsCount');
+      if (findingsCount) findingsCount.textContent = diagnosis.findings.length.toString();
+
+      const healthyTeeth = diagnosis.teethChart.filter((t: any) => t.severity === 'none').length;
+      const concernTeeth = diagnosis.teethChart.filter((t: any) => t.severity !== 'none').length;
+      
+      const healthyTeethEl = document.getElementById('healthyTeeth');
+      const concernTeethEl = document.getElementById('concernTeeth');
+      const issuesFoundEl = document.getElementById('issuesFound');
+      
+      if (healthyTeethEl) healthyTeethEl.textContent = healthyTeeth.toString();
+      if (concernTeethEl) concernTeethEl.textContent = concernTeeth.toString();
+      if (issuesFoundEl) issuesFoundEl.textContent = concernTeeth.toString();
+
+      // Display urgency
+      const urgencyBadge = document.getElementById('urgencyBadge');
+      if (urgencyBadge) {
+        const urgencyColors = {
+          routine: 'bg-green-100 text-green-800',
+          soon: 'bg-yellow-100 text-yellow-800',
+          urgent: 'bg-orange-100 text-orange-800',
+          emergency: 'bg-red-100 text-red-800'
+        };
+        urgencyBadge.className = `text-sm font-bold px-2 py-1 rounded ${urgencyColors[diagnosis.urgency]}`;
+        urgencyBadge.textContent = diagnosis.urgency.toUpperCase();
+      }
+
+      // Display overall assessment
+      const overallAssessmentText = document.getElementById('overallAssessmentText');
+      if (overallAssessmentText) {
+        overallAssessmentText.textContent = diagnosis.overallAssessment;
+      }
+
+      // Display teeth chart
+      const teethChartContainer = document.getElementById('teethChartContainer');
+      if (teethChartContainer && diagnosis.teethChart) {
+        renderTeethChart(diagnosis.teethChart);
+      }
+
+      // Display detailed findings
+      const detailedFindings = document.getElementById('detailedFindings');
+      if (detailedFindings) {
+        const severityColors = {
+          none: { border: 'border-green-500', bg: 'bg-green-50', text: 'text-green-800' },
+          mild: { border: 'border-yellow-500', bg: 'bg-yellow-50', text: 'text-yellow-800' },
+          moderate: { border: 'border-orange-500', bg: 'bg-orange-50', text: 'text-orange-800' },
+          severe: { border: 'border-red-500', bg: 'bg-red-50', text: 'text-red-800' }
+        };
+        
+        detailedFindings.innerHTML = diagnosis.findings.map((finding: any) => {
+          const colors = severityColors[finding.severity];
+          return `
+            <div class="border-l-4 ${colors.border} pl-4">
+              <h3 class="text-lg font-semibold text-gray-900 mb-2">${finding.category}</h3>
+              <p class="text-gray-700 mb-3">${finding.description}</p>
+              <div class="flex items-center space-x-3">
+                <span class="text-xs px-2 py-1 rounded ${colors.bg} ${colors.text} font-medium">${finding.severity.toUpperCase()}</span>
+                <span class="text-xs text-gray-500">${Math.round(finding.confidence)}% confidence</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Display recommendations
+      const recommendationsContainer = document.getElementById('recommendationsContainer');
+      if (recommendationsContainer) {
+        recommendationsContainer.innerHTML = diagnosis.recommendations.map((rec: string, index: number) => `
+          <div class="flex items-start space-x-3 p-4 bg-blue-50 rounded-lg">
+            <div class="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+              ${index + 1}
+            </div>
+            <p class="text-sm text-gray-700 flex-1">${rec}</p>
+          </div>
+        `).join('');
+      }
+
+      // Display technical details
+      const analysisDate = document.getElementById('analysisDate');
+      const fileName = document.getElementById('fileName');
+      const modelName = document.getElementById('modelName');
+      
+      if (analysisDate) analysisDate.textContent = new Date(result.timestamp).toLocaleString();
+      if (fileName) fileName.textContent = result.fileName;
+      if (modelName && result.modelUsed) {
+        modelName.textContent = `${result.modelUsed.name} (${result.modelUsed.provider})`;
+      }
+    }
+
+    // Render teeth chart function
+    function renderTeethChart(teeth: any[]) {
+      const teethMap = new Map(teeth.map(t => [t.toothNumber, t]));
+      const upperTeeth = Array.from({ length: 16 }, (_, i) => i + 1);
+      const lowerTeeth = Array.from({ length: 16 }, (_, i) => i + 17);
+
+      function getSeverityColor(severity: string): string {
+        switch (severity) {
+          case 'severe': return 'bg-red-500 border-red-600';
+          case 'moderate': return 'bg-orange-400 border-orange-500';
+          case 'mild': return 'bg-yellow-400 border-yellow-500';
+          case 'none': return 'bg-green-400 border-green-500';
+          default: return 'bg-gray-300 border-gray-400';
+        }
+      }
+
+      const container = document.getElementById('teethChartContainer');
+      if (!container) return;
+
+      container.innerHTML = `
+        <div class="max-w-4xl mx-auto">
+          <h3 class="text-xl font-semibold text-gray-900 mb-6 text-center">Universal Numbering System</h3>
+          
+          <div class="mb-2">
+            <p class="text-xs text-gray-500 mb-2 text-center">Upper Jaw</p>
+            <div class="grid grid-cols-16 gap-1">
+              ${upperTeeth.map(toothNum => {
+                const tooth = teethMap.get(toothNum);
+                const severityColor = tooth ? getSeverityColor(tooth.severity) : 'bg-gray-300 border-gray-400';
+                return `
+                  <div class="tooth-container group relative flex flex-col items-center">
+                    <div class="tooth w-12 h-16 rounded-lg border-2 ${severityColor} flex items-center justify-center cursor-help transition-transform hover:scale-110 shadow-sm">
+                      <span class="text-xs font-bold text-white drop-shadow">${toothNum}</span>
+                    </div>
+                    ${tooth ? `
+                      <div class="tooltip hidden group-hover:block absolute z-10 bottom-full mb-2 w-48 bg-gray-900 text-white text-xs rounded-lg p-3 shadow-lg">
+                        <div class="font-bold mb-1">Tooth #${toothNum}</div>
+                        <div class="mb-1">Condition: ${tooth.condition}</div>
+                        <div class="mb-1">Severity: ${tooth.severity}</div>
+                        ${tooth.notes ? `<div class="text-gray-300 text-xs">${tooth.notes}</div>` : ''}
+                        <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                      </div>
+                    ` : ''}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+
+          <div class="my-4 border-t-2 border-dashed border-gray-300"></div>
+
+          <div>
+            <div class="grid grid-cols-16 gap-1">
+              ${lowerTeeth.map(toothNum => {
+                const tooth = teethMap.get(toothNum);
+                const severityColor = tooth ? getSeverityColor(tooth.severity) : 'bg-gray-300 border-gray-400';
+                return `
+                  <div class="tooth-container group relative flex flex-col items-center">
+                    <div class="tooth w-12 h-16 rounded-lg border-2 ${severityColor} flex items-center justify-center cursor-help transition-transform hover:scale-110 shadow-sm">
+                      <span class="text-xs font-bold text-white drop-shadow">${toothNum}</span>
+                    </div>
+                    ${tooth ? `
+                      <div class="tooltip hidden group-hover:block absolute z-10 top-full mt-2 w-48 bg-gray-900 text-white text-xs rounded-lg p-3 shadow-lg">
+                        <div class="font-bold mb-1">Tooth #${toothNum}</div>
+                        <div class="mb-1">Condition: ${tooth.condition}</div>
+                        <div class="mb-1">Severity: ${tooth.severity}</div>
+                        ${tooth.notes ? `<div class="text-gray-300 text-xs">${tooth.notes}</div>` : ''}
+                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-gray-900"></div>
+                      </div>
+                    ` : ''}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+            <p class="text-xs text-gray-500 mt-2 text-center">Lower Jaw</p>
+          </div>
+
+          <div class="mt-6 flex justify-center space-x-4 text-xs">
+            <div class="flex items-center space-x-1">
+              <div class="w-4 h-4 bg-green-400 border border-green-500 rounded"></div>
+              <span>Healthy</span>
+            </div>
+            <div class="flex items-center space-x-1">
+              <div class="w-4 h-4 bg-yellow-400 border border-yellow-500 rounded"></div>
+              <span>Mild</span>
+            </div>
+            <div class="flex items-center space-x-1">
+              <div class="w-4 h-4 bg-orange-400 border border-orange-500 rounded"></div>
+              <span>Moderate</span>
+            </div>
+            <div class="flex items-center space-x-1">
+              <div class="w-4 h-4 bg-red-500 border border-red-600 rounded"></div>
+              <span>Severe</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Copy functionality
+    function setupCopyButton(buttonId: string, inputId: string) {
+      const button = document.getElementById(buttonId);
+      const input = document.getElementById(inputId) as HTMLInputElement;
+
+      button?.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(input.value);
+          const originalText = button.textContent;
+          button.textContent = '✓';
+          button.classList.add('bg-green-600');
+          button.classList.remove('bg-blue-600');
+          
+          setTimeout(() => {
+            button.textContent = originalText;
+            button.classList.remove('bg-green-600');
+            button.classList.add('bg-blue-600');
+          }, 2000);
+        } catch (err) {
+          console.error('Failed to copy:', err);
+        }
+      });
+    }
+
+    setupCopyButton('copyBriefLink', 'briefLink');
+    setupCopyButton('copyFullLink', 'fullLink');
+
+    // Print functionality
+    const printButton = document.getElementById('printReport');
+    printButton?.addEventListener('click', () => {
+      window.print();
+    });
+
+    // Download functionality (placeholder)
+    const downloadButton = document.getElementById('downloadReport');
+    downloadButton?.addEventListener('click', () => {
+      alert('PDF download feature coming soon! For now, you can use Print and save as PDF.');
+    });
+  </script>
+
+  <style>
+    .grid-cols-16 {
+      display: grid;
+      grid-template-columns: repeat(16, minmax(0, 1fr));
+    }
+
+    @media print {
+      nav, footer, .sticky, button, a[href="/"] {
+        display: none !important;
+      }
+    }
+  </style>
+</Layout>

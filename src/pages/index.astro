@@ -1,0 +1,278 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Upload Dental Scan - DRS AI">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="text-center mb-12">
+      <h1 class="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+        🦷 AI Dental Scan Analysis
+      </h1>
+      <p class="text-xl text-gray-600">
+        Upload your dental scan and get AI-powered diagnosis with temporary shareable results
+      </p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
+      <form id="uploadForm" class="space-y-6" enctype="multipart/form-data">
+        <!-- File Upload Area -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Upload Dental Scan (X-ray, Photo, or PDF)
+          </label>
+          <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl hover:border-blue-400 transition-colors">
+            <div class="space-y-1 text-center">
+              <svg
+                class="mx-auto h-12 w-12 text-gray-400"
+                stroke="currentColor"
+                fill="none"
+                viewBox="0 0 48 48"
+                aria-hidden="true"
+              >
+                <path
+                  d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <div class="flex text-sm text-gray-600">
+                <label
+                  for="file-upload"
+                  class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500"
+                >
+                  <span>Upload a file</span>
+                  <input 
+                    id="file-upload" 
+                    name="file" 
+                    type="file" 
+                    class="sr-only" 
+                    accept="image/*"
+                    required 
+                  />
+                </label>
+                <p class="pl-1">or drag and drop</p>
+              </div>
+              <p class="text-xs text-gray-500">PNG, JPG, JPEG, WebP, GIF up to 10MB (under 5MB recommended)</p>
+              <p class="text-xs text-red-600 mt-1">⚠️ PDFs not supported - convert to image first</p>
+            </div>
+          </div>
+          <div id="fileInfo" class="mt-2 text-sm text-gray-600 hidden"></div>
+          <div id="imagePreview" class="mt-4 hidden">
+            <img id="previewImg" src="" alt="Preview" class="max-w-full h-48 mx-auto rounded-lg border-2 border-gray-200" />
+          </div>
+        </div>
+
+        <!-- Initial Diagnosis Text Area -->
+        <div>
+          <label for="initialDiagnosis" class="block text-sm font-medium text-gray-700 mb-2">
+            Your Initial Diagnosis or Concerns
+          </label>
+          <textarea
+            id="initialDiagnosis"
+            name="initialDiagnosis"
+            rows="4"
+            class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-lg p-3 border"
+            placeholder="E.g., I think I have a cavity in my upper right molar, and my gums look inflamed..."
+            required
+          ></textarea>
+          <p class="mt-1 text-xs text-gray-500">
+            Be as detailed as possible. This helps the AI compare its findings with your observations.
+          </p>
+        </div>
+
+        <!-- Important Notice -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div class="flex items-start space-x-3">
+            <svg class="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <p class="text-sm font-medium text-blue-800 mb-1">Medical Disclaimer</p>
+              <p class="text-xs text-blue-700">
+                This AI analysis is for informational purposes only and should not replace professional dental care. 
+                Always consult with a licensed dentist for medical advice.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="flex justify-end">
+          <button
+            type="submit"
+            id="submitBtn"
+            class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <svg class="mr-2 -ml-1 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span id="btnText">Analyze with AI</span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Features Section -->
+    <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="text-center">
+        <div class="inline-flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 text-blue-600 mb-4">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">AI-Powered Analysis</h3>
+        <p class="text-gray-600">Advanced AI models trained on dental imaging for accurate diagnosis</p>
+      </div>
+      <div class="text-center">
+        <div class="inline-flex items-center justify-center h-12 w-12 rounded-full bg-purple-100 text-purple-600 mb-4">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Temporarily Shareable</h3>
+        <p class="text-gray-600">Share your results with dentists or family via a temporary link (session only)</p>
+      </div>
+      <div class="text-center">
+        <div class="inline-flex items-center justify-center h-12 w-12 rounded-full bg-green-100 text-green-600 mb-4">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-2">Detailed Reports</h3>
+        <p class="text-gray-600">Comprehensive analysis with tooth-by-tooth breakdown</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // File upload handling
+    const fileInput = document.getElementById('file-upload') as HTMLInputElement;
+    const fileInfo = document.getElementById('fileInfo') as HTMLDivElement;
+    const imagePreview = document.getElementById('imagePreview') as HTMLDivElement;
+    const previewImg = document.getElementById('previewImg') as HTMLImageElement;
+    
+    fileInput?.addEventListener('change', (e) => {
+      const target = e.target as HTMLInputElement;
+      const file = target.files?.[0];
+      if (file) {
+        fileInfo.textContent = `Selected: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+        fileInfo.classList.remove('hidden');
+        
+        // Show preview for images
+        if (file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            previewImg.src = e.target?.result as string;
+            imagePreview.classList.remove('hidden');
+          };
+          reader.readAsDataURL(file);
+        } else {
+          imagePreview.classList.add('hidden');
+        }
+      }
+    });
+
+    // Form submission
+    const form = document.getElementById('uploadForm') as HTMLFormElement;
+    const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+    const btnText = document.getElementById('btnText') as HTMLSpanElement;
+    
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      console.log('Form submitted!');
+      
+      const fileInput = document.getElementById('file-upload') as HTMLInputElement;
+      const initialDiagnosis = (document.getElementById('initialDiagnosis') as HTMLTextAreaElement).value;
+      const file = fileInput.files?.[0];
+      
+      console.log('File:', file?.name, file?.type, file?.size);
+      console.log('Initial diagnosis:', initialDiagnosis);
+      
+      if (!file || !initialDiagnosis) {
+        alert('Please fill in all required fields');
+        return;
+      }
+      
+      // Check file size (10MB limit)
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (file.size > maxSize) {
+        alert(`File too large! Maximum size is 10MB. Your file is ${(file.size / 1024 / 1024).toFixed(2)}MB. Please compress or resize the image.`);
+        return;
+      }
+      
+      // Recommend smaller size for large files
+      if (file.size > 5 * 1024 * 1024) {
+        console.warn('Large file detected, may hit sessionStorage quota');
+      }
+
+      // Disable submit button
+      submitBtn.disabled = true;
+      btnText.textContent = 'Uploading...';
+      console.log('Button disabled, uploading to API...');
+      
+      try {
+        // Create form data
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('initialDiagnosis', initialDiagnosis);
+        
+        // Show uploading status
+        btnText.textContent = 'Analyzing with AI...';
+        
+        console.log('Sending to API...');
+        // Send directly to API
+        const response = await fetch('/api/analyze', {
+          method: 'POST',
+          body: formData
+        });
+        
+        console.log('API response status:', response.status);
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || errorData.details || 'Analysis failed');
+        }
+        
+        const result = await response.json();
+        console.log('Success! Result ID:', result.id);
+        
+        // Store result for results page
+        sessionStorage.setItem('analysisResult', JSON.stringify(result));
+        
+        // Redirect to results
+        console.log('Redirecting to results...');
+        window.location.href = `/results/${result.id}`;
+        
+      } catch (error) {
+        console.error('Upload error:', error);
+        alert(`Failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        submitBtn.disabled = false;
+        btnText.textContent = 'Analyze with AI';
+      }
+    });
+
+    // Drag and drop handling
+    const dropZone = document.querySelector('[class*="border-dashed"]');
+    
+    dropZone?.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('border-blue-500', 'bg-blue-50');
+    });
+    
+    dropZone?.addEventListener('dragleave', () => {
+      dropZone.classList.remove('border-blue-500', 'bg-blue-50');
+    });
+    
+    dropZone?.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('border-blue-500', 'bg-blue-50');
+      
+      const files = (e as DragEvent).dataTransfer?.files;
+      if (files && files.length > 0) {
+        fileInput.files = files;
+        fileInput.dispatchEvent(new Event('change'));
+      }
+    });
+  </script>
+</Layout>
