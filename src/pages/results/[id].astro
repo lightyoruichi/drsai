@@ -253,7 +253,7 @@ const { id } = Astro.params;
       
       const correctList = document.getElementById('correctList');
       if (correctList && comparison.correct.length > 0) {
-        correctList.innerHTML = comparison.correct.map(item => 
+        correctList.innerHTML = comparison.correct.map((item: string) => 
           `<li class="text-sm text-gray-700">✓ ${item}</li>`
         ).join('');
       } else if (correctList) {
@@ -262,7 +262,7 @@ const { id } = Astro.params;
 
       const incorrectList = document.getElementById('incorrectList');
       if (incorrectList && comparison.incorrect.length > 0) {
-        incorrectList.innerHTML = comparison.incorrect.map(item => 
+        incorrectList.innerHTML = comparison.incorrect.map((item: string) => 
           `<li class="text-sm text-gray-700">✗ ${item}</li>`
         ).join('');
       } else if (incorrectList) {
@@ -271,7 +271,7 @@ const { id } = Astro.params;
 
       const additionalList = document.getElementById('additionalList');
       if (additionalList && comparison.additional.length > 0) {
-        additionalList.innerHTML = comparison.additional.map(item => 
+        additionalList.innerHTML = comparison.additional.map((item: string) => 
           `<li class="text-sm text-gray-700">+ ${item}</li>`
         ).join('');
       } else if (additionalList) {
@@ -300,7 +300,7 @@ const { id } = Astro.params;
           severe: 'bg-red-50 border-red-200 text-red-800'
         };
         
-        findingsList.innerHTML = diagnosis.findings.map(finding => `
+        findingsList.innerHTML = diagnosis.findings.map((finding: any) => `
           <div class="border-l-4 ${severityColors[finding.severity].includes('green') ? 'border-green-500' : severityColors[finding.severity].includes('yellow') ? 'border-yellow-500' : severityColors[finding.severity].includes('orange') ? 'border-orange-500' : 'border-red-500'} pl-4">
             <div class="flex items-start justify-between">
               <div class="flex-1">
@@ -319,7 +319,7 @@ const { id } = Astro.params;
       // Display recommendations
       const recommendationsList = document.getElementById('recommendationsList');
       if (recommendationsList) {
-        recommendationsList.innerHTML = diagnosis.recommendations.slice(0, 5).map(rec => 
+        recommendationsList.innerHTML = diagnosis.recommendations.slice(0, 5).map((rec: string) => 
           `<li class="flex items-start space-x-2">
             <svg class="h-4 w-4 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
