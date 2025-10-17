@@ -238,8 +238,8 @@ const { id } = Astro.params;
           urgent: '⚠️ Urgent Attention Needed',
           emergency: '🚨 Emergency - See Dentist ASAP'
         };
-        urgencyBadge.className = `inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${urgencyColors[diagnosis.urgency]}`;
-        urgencyBadge.textContent = urgencyLabels[diagnosis.urgency];
+        urgencyBadge.className = `inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${urgencyColors[diagnosis.urgency as keyof typeof urgencyColors]}`;
+        urgencyBadge.textContent = urgencyLabels[diagnosis.urgency as keyof typeof urgencyLabels];
       }
 
       // Display your diagnosis
@@ -300,20 +300,22 @@ const { id } = Astro.params;
           severe: 'bg-red-50 border-red-200 text-red-800'
         };
         
-        findingsList.innerHTML = diagnosis.findings.map((finding: any) => `
-          <div class="border-l-4 ${severityColors[finding.severity].includes('green') ? 'border-green-500' : severityColors[finding.severity].includes('yellow') ? 'border-yellow-500' : severityColors[finding.severity].includes('orange') ? 'border-orange-500' : 'border-red-500'} pl-4">
+        findingsList.innerHTML = diagnosis.findings.map((finding: any) => {
+          const sev = finding.severity as keyof typeof severityColors;
+          return `
+          <div class="border-l-4 ${severityColors[sev].includes('green') ? 'border-green-500' : severityColors[sev].includes('yellow') ? 'border-yellow-500' : severityColors[sev].includes('orange') ? 'border-orange-500' : 'border-red-500'} pl-4">
             <div class="flex items-start justify-between">
               <div class="flex-1">
                 <h3 class="text-sm font-semibold text-gray-900 mb-1">${finding.category}</h3>
                 <p class="text-sm text-gray-700 mb-2">${finding.description}</p>
                 <div class="flex items-center space-x-3">
-                  <span class="text-xs px-2 py-1 rounded ${severityColors[finding.severity]}">${finding.severity.toUpperCase()}</span>
+                  <span class="text-xs px-2 py-1 rounded ${severityColors[sev]}">${finding.severity.toUpperCase()}</span>
                   <span class="text-xs text-gray-500">${Math.round(finding.confidence)}% confidence</span>
                 </div>
               </div>
             </div>
           </div>
-        `).join('');
+        `;}).join('');
       }
 
       // Display recommendations

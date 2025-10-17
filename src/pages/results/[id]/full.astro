@@ -281,7 +281,7 @@ const { id } = Astro.params;
           urgent: 'bg-orange-100 text-orange-800',
           emergency: 'bg-red-100 text-red-800'
         };
-        urgencyBadge.className = `text-sm font-bold px-2 py-1 rounded ${urgencyColors[diagnosis.urgency]}`;
+        urgencyBadge.className = `text-sm font-bold px-2 py-1 rounded ${urgencyColors[diagnosis.urgency as keyof typeof urgencyColors]}`;
         urgencyBadge.textContent = diagnosis.urgency.toUpperCase();
       }
 
@@ -308,7 +308,7 @@ const { id } = Astro.params;
         };
         
         detailedFindings.innerHTML = diagnosis.findings.map((finding: any) => {
-          const colors = severityColors[finding.severity];
+          const colors = severityColors[finding.severity as keyof typeof severityColors];
           return `
             <div class="border-l-4 ${colors.border} pl-4">
               <h3 class="text-lg font-semibold text-gray-900 mb-2">${finding.category}</h3>
