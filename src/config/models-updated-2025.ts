@@ -231,6 +231,17 @@ export const AVAILABLE_MODELS_2025: Record<string, ModelConfig> = {
   // MISTRAL MODELS
   // ============================================
 
+  'pixtral-large': {
+    id: 'mistralai/pixtral-large',
+    name: 'Pixtral Large',
+    provider: 'Mistral',
+    description: 'Multimodal flagship with 128K context',
+    contextWindow: 128000,
+    supportsVision: true,
+    costPer1MInputTokens: 2.0,
+    costPer1MOutputTokens: 6.0,
+  },
+
   'mistral-large': {
     id: 'mistralai/mistral-large',
     name: 'Mistral Large',
@@ -243,8 +254,30 @@ export const AVAILABLE_MODELS_2025: Record<string, ModelConfig> = {
   },
 
   // ============================================
-  // META MODELS (No vision support)
+  // META MODELS
   // ============================================
+
+  'llama-3.2-90b-vision': {
+    id: 'meta-llama/llama-3.2-90b-vision-instruct',
+    name: 'Llama 3.2 90B Vision',
+    provider: 'Meta',
+    description: 'Open-source vision model, very affordable',
+    contextWindow: 128000,
+    supportsVision: true,
+    costPer1MInputTokens: 0.35,
+    costPer1MOutputTokens: 0.40,
+  },
+
+  'llama-3.2-11b-vision': {
+    id: 'meta-llama/llama-3.2-11b-vision-instruct',
+    name: 'Llama 3.2 11B Vision',
+    provider: 'Meta',
+    description: 'Smallest vision model, ultra-cheap',
+    contextWindow: 128000,
+    supportsVision: true,
+    costPer1MInputTokens: 0.055,
+    costPer1MOutputTokens: 0.055,
+  },
   
   'llama-3.1-405b': {
     id: 'meta-llama/llama-3.1-405b-instruct',
@@ -256,17 +289,49 @@ export const AVAILABLE_MODELS_2025: Record<string, ModelConfig> = {
     costPer1MInputTokens: 2.7,
     costPer1MOutputTokens: 2.7,
   },
+
+  // ============================================
+  // DEEPSEEK MODELS (Ultra-affordable)
+  // ============================================
+
+  'deepseek-v3': {
+    id: 'deepseek/deepseek-chat',
+    name: 'DeepSeek V3',
+    provider: 'DeepSeek',
+    description: 'Ultra-affordable Chinese model, no vision but excellent reasoning',
+    contextWindow: 64000,
+    supportsVision: false,
+    costPer1MInputTokens: 0.27,
+    costPer1MOutputTokens: 1.10,
+  },
+
+  // ============================================
+  // X.AI MODELS (Grok)
+  // ============================================
+
+  'grok-vision-beta': {
+    id: 'x-ai/grok-vision-beta',
+    name: 'Grok Vision Beta',
+    provider: 'x.AI',
+    description: 'Grok with vision capabilities',
+    contextWindow: 8000,
+    supportsVision: true,
+    costPer1MInputTokens: 5.0,
+    costPer1MOutputTokens: 15.0,
+  },
 };
 
 /**
  * Get the default model ID from environment or use fallback
+ * Priority: ENV variable > Gemini 2.5 Flash (best cost/performance)
  */
 export function getDefaultModelId(): string {
-  return import.meta.env.OPENROUTER_MODEL || 'anthropic/claude-3.5-sonnet';
+  return import.meta.env.OPENROUTER_MODEL || 'google/gemini-2.5-flash';
 }
 
 /**
  * Get model configuration by ID or key
+ * Falls back to Gemini 2.5 Flash (most cost-effective with excellent quality)
  */
 export function getModelConfig(modelIdOrKey: string): ModelConfig {
   // Try to find by key first
@@ -281,9 +346,9 @@ export function getModelConfig(modelIdOrKey: string): ModelConfig {
     return model;
   }
 
-  // Fallback to Claude 3.5 Sonnet
-  console.warn(`Model ${modelIdOrKey} not found in config, using default`);
-  return AVAILABLE_MODELS_2025['claude-3.5-sonnet'];
+  // Fallback to Gemini 2.5 Flash (newest, cheapest, 1M context, excellent quality)
+  console.warn(`Model ${modelIdOrKey} not found in config, using Gemini 2.5 Flash fallback`);
+  return AVAILABLE_MODELS_2025['gemini-2.5-flash'];
 }
 
 /**
@@ -323,22 +388,28 @@ export function getRecommendedModels(): {
   production: ModelConfig[];
   budget: ModelConfig[];
   development: ModelConfig[];
+  ultraCheap: ModelConfig[];
 } {
   return {
     production: [
-      AVAILABLE_MODELS_2025['claude-3.5-sonnet'],
-      AVAILABLE_MODELS_2025['gpt-4o'],
-      AVAILABLE_MODELS_2025['gemini-pro-1.5'],
+      AVAILABLE_MODELS_2025['claude-3.5-sonnet'],       // Best quality
+      AVAILABLE_MODELS_2025['gpt-4o'],                  // OpenAI flagship
+      AVAILABLE_MODELS_2025['gemini-2.5-pro'],          // Google latest
     ],
     budget: [
-      AVAILABLE_MODELS_2025['gemini-flash-1.5'],
-      AVAILABLE_MODELS_2025['gemini-2.0-flash'],
-      AVAILABLE_MODELS_2025['gpt-4o-mini'],
+      AVAILABLE_MODELS_2025['gemini-2.5-flash'],        // BEST VALUE - 1M context, $0.075/$0.3
+      AVAILABLE_MODELS_2025['claude-haiku-4.5'],        // Fast Anthropic
+      AVAILABLE_MODELS_2025['gpt-4o-mini'],             // Fast OpenAI
     ],
     development: [
-      AVAILABLE_MODELS_2025['claude-haiku-4.5'],
-      AVAILABLE_MODELS_2025['claude-3.5-haiku'],
-      AVAILABLE_MODELS_2025['qwen3-vl-8b-instruct'],
+      AVAILABLE_MODELS_2025['claude-3.5-haiku'],        // Fast testing
+      AVAILABLE_MODELS_2025['qwen3-vl-8b-instruct'],    // Good quality/price
+      AVAILABLE_MODELS_2025['pixtral-large'],           // Mistral vision
+    ],
+    ultraCheap: [
+      AVAILABLE_MODELS_2025['llama-3.2-11b-vision'],    // $0.055 per 1M!
+      AVAILABLE_MODELS_2025['llama-3.2-90b-vision'],    // $0.35 per 1M
+      AVAILABLE_MODELS_2025['gemini-flash-1.5'],        // $0.075 per 1M
     ],
   };
 }
